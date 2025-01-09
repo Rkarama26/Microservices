@@ -1,0 +1,9 @@
+server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false # now this service can't be register with itself
+    fetch-registry: false
