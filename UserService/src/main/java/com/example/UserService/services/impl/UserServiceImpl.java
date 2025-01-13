@@ -4,6 +4,8 @@ import com.example.UserService.entities.Hotel;
 import com.example.UserService.entities.Rating;
 import com.example.UserService.entities.User;
 import com.example.UserService.exception.ResourceNotFoundException;
+import com.example.UserService.external_service.HotelService;
+import com.example.UserService.external_service.ReviewService;
 import com.example.UserService.repository.UserRepository;
 import com.example.UserService.services.UserService;
 import org.slf4j.Logger;
@@ -29,6 +31,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private HotelService hotelService;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @Override
     public User saveUser(User user) {
@@ -80,17 +88,25 @@ public class UserServiceImpl implements UserService {
     public User getUser(String userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User Not Found Exception " + userId));
 
-        Rating[] ratingOfUser = restTemplate.getForObject("http://REVIEWSERVICE/rating/user/" + userId, Rating[].class);
-        logger.info("ratingOfUser: " + ratingOfUser);
+//        Rating[] ratingOfUser = restTemplate.getForObject("http://REVIEWSERVICE/rating/user/" + userId, Rating[].class);
+//        logger.info("ratingOfUser: " + ratingOfUser);
+//
+//        Rating[] ratingOfUser = reviewService.getRatingByUser(userId);
+//        List<Rating> ratings = Arrays.stream(ratingOfUser).toList();
 
-        List<Rating> ratings = Arrays.stream(ratingOfUser).toList();
+        List<Rating> ratings = reviewService.getRatingByUser(userId);
 
         List<Rating> ratingList = ratings.stream().map(rating -> {
             //api call to hotel service
             //http://localhost:8081/hotels/c934e1d1-f5f8-4f9e-94ea-4fd35c44623f
-            ResponseEntity<Hotel> forEntity = restTemplate.getForEntity("http://HOTELSERVICE/hotels/" + rating.getHotelId(), Hotel.class);
-            Hotel hotel = forEntity.getBody();
-            logger.info("Status code: {}:  " + forEntity.getStatusCode());
+
+            //ResponseEntity<Hotel> forEntity = restTemplate.getForEntity("http://HOTELSERVICE/hotels/" + rating.getHotelId(), Hotel.class);
+
+             /*
+             now using fiegnClient for API call
+              */
+            Hotel hotel = hotelService.getHotel(rating.getHotelId());
+            //logger.info("Status code: {}:  " + forEntity.getStatusCode());
 
 
             //set hotel to rating
