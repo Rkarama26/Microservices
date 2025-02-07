@@ -19,7 +19,7 @@ This repository contains an implementation of a microservices architecture using
 ## Getting Started
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone <https://github.com/Rkarama26/Microservices>
    ```
 2. Start the **Config Server** first.
 3. Start the **Service Registry (Eureka Server)**.
